@@ -25,7 +25,7 @@ public class FishMovement2 : MonoBehaviour
     public Button feedButton;               //エサのボタン
     private GameObject feedObject;          //エサオブジェクト
     
-    private Rigidbody rb;
+    private Rigidbody rb;                   //リジッドボディー登録用
 
     void Start()
     {
@@ -51,6 +51,8 @@ public class FishMovement2 : MonoBehaviour
         //現在の状態別の処理(常時)
         switch(currentState)
         {
+            //思考状態時の行動
+            //3割の確率で再度移動先を考え始める
             case State.Thinking:
                 stayTimer += Time.deltaTime;
                 if(stayTimer >= stay)
@@ -67,6 +69,9 @@ public class FishMovement2 : MonoBehaviour
                     }
                 }
                 break;
+
+            //移動状態時の行動
+            //目的地を見つめ、一定距離まで目的地に近づくと、その場に留まり思考モードに入る 
             case State.Moving:
                 transform.LookAt(targetPosition);
                 float distance = Vector3.Distance(transform.position, targetPosition);
@@ -79,6 +84,9 @@ public class FishMovement2 : MonoBehaviour
                     Think();
                 }
                 break;
+
+            //食餌状態時の行動
+            //基本的には移動状態と同じだが、最初にエサを見る時間を追加している    
             case State.Eating:
                 targetPosition = feedObject.transform.position;
                 transform.LookAt(targetPosition);
@@ -111,6 +119,7 @@ public class FishMovement2 : MonoBehaviour
 
     }
 
+    //移動先と、停滞時間を決める
     void Think()
     {
         currentState = State.Thinking;
@@ -119,12 +128,14 @@ public class FishMovement2 : MonoBehaviour
         stay = Random.Range(minStayTime, maxStayTime);
     }
 
+    //移動速度を決める
     void Move()
     {
         currentState = State.Moving;
         speed = Random.Range(minSpeed, maxSpeed);
     }
 
+    //エサオブジェクトを格納する
     public void Eat(GameObject feed)
     {
         currentState = State.Eating;
